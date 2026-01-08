@@ -96,6 +96,13 @@ class OutputConfig:
 
 
 @dataclass
+class UiConfig:
+    enabled: bool = True
+    host: str = "127.0.0.1"
+    port: int = 8000
+
+
+@dataclass
 class AppConfig:
     symbols: SymbolsConfig = field(default_factory=SymbolsConfig)
     rest: RestConfig = field(default_factory=RestConfig)
@@ -104,6 +111,7 @@ class AppConfig:
     wall: WallConfig = field(default_factory=WallConfig)
     event_pack: EventPackConfig = field(default_factory=EventPackConfig)
     output: OutputConfig = field(default_factory=OutputConfig)
+    ui: UiConfig = field(default_factory=UiConfig)
 
 
 def load_config(path: str | Path) -> AppConfig:
@@ -122,6 +130,7 @@ def load_config(path: str | Path) -> AppConfig:
     trade_confirm_raw = wall_raw.get("trade_confirm", {})
     event_pack_raw = raw.get("event_pack", {})
     output_raw = raw.get("output", {})
+    ui_raw = raw.get("ui", {})
 
     return AppConfig(
         symbols=SymbolsConfig(
@@ -192,5 +201,10 @@ def load_config(path: str | Path) -> AppConfig:
         output=OutputConfig(
             data_dir=output_raw.get("data_dir", "./data"),
             log_level=output_raw.get("log_level", "INFO"),
+        ),
+        ui=UiConfig(
+            enabled=ui_raw.get("enabled", True),
+            host=ui_raw.get("host", "127.0.0.1"),
+            port=ui_raw.get("port", 8000),
         ),
     )

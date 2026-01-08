@@ -49,3 +49,7 @@ event_pack:
 output:
   data_dir: "./data"
   log_level: "INFO"
+ui:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8000
