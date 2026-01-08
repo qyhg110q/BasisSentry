@@ -1,0 +1,38 @@
+symbols:
+  mode: "auto"
+  manual_list: []
+  auto_filters:
+    quote: "USDT"
+    futures_contract_type: "PERPETUAL"
+    max_symbols: 300
+ws:
+  spot_base: "wss://stream.binance.com:9443"
+  futures_base: "wss://fstream.binance.com"
+  max_streams_per_conn: 800
+  reconnect_backoff:
+    min: 1
+    max: 60
+basis:
+  window_seconds: 300
+  basis_abs_threshold: 0.02
+  z_threshold: 5.0
+  min_duration_s: 10
+wall:
+  enabled: true
+  levels: 20
+  speed: "100ms"
+  hard_min_wall_usdt: 200000
+  k_median: 8
+  share_threshold: 0.25
+  range_bps: 30
+  trade_confirm:
+    use_aggTrade: true
+    trade_window_s: 2
+    trade_price_bps: 5
+    trade_explain_ratio: 0.2
+event_pack:
+  pre_seconds: 120
+  post_seconds: 180
+output:
+  data_dir: "./data"
+  log_level: "INFO"
