@@ -57,7 +57,7 @@ def _filter_futures_symbols(payload: dict, contract_type: str) -> set[str]:
 
 
 async def load_universe(filters: AutoFilters, rest: RestConfig) -> Universe:
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         spot_payload, futures_payload = await asyncio.gather(
             fetch_exchange_info(
                 session,
