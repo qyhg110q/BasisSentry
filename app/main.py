@@ -169,7 +169,7 @@ class AppRuntime:
 
 async def run_app(config: AppConfig, dry_run: bool = False) -> None:
     if config.symbols.mode == "auto":
-        universe = await load_universe(config.symbols.auto_filters)
+        universe = await load_universe(config.symbols.auto_filters, config.rest)
         symbols = universe.symbols
     else:
         symbols = [s.lower() for s in config.symbols.manual_list]

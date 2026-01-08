@@ -5,11 +5,7 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from app.config import AutoFilters
-
-
-SPOT_EXCHANGE_INFO = "https://api.binance.com/api/v3/exchangeInfo"
-FUTURES_EXCHANGE_INFO = "https://fapi.binance.com/fapi/v1/exchangeInfo"
+from app.config import AutoFilters, RestConfig
 
 
 @dataclass
@@ -17,10 +13,25 @@ class Universe:
     symbols: list[str]
 
 
-async def fetch_exchange_info(session: aiohttp.ClientSession, url: str) -> dict:
-    async with session.get(url, timeout=20) as resp:
-        resp.raise_for_status()
-        return await resp.json()
+async def fetch_exchange_info(
+    session: aiohttp.ClientSession,
+    endpoints: list[str],
+    timeout_seconds: int,
+    max_retries: int,
+) -> dict:
+    last_error: Exception | None = None
+    for attempt in range(max_retries):
+        for url in endpoints:
+            try:
+                timeout = aiohttp.ClientTimeout(total=timeout_seconds)
+                async with session.get(url, timeout=timeout) as resp:
+                    resp.raise_for_status()
+                    return await resp.json()
+            except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                last_error = exc
+                await asyncio.sleep(min(2**attempt, 5))
+    message = f"failed to fetch exchange info from {endpoints}"
+    raise RuntimeError(message) from last_error
 
 
 def _filter_spot_symbols(payload: dict, quote: str) -> set[str]:
@@ -45,11 +56,21 @@ def _filter_futures_symbols(payload: dict, contract_type: str) -> set[str]:
     return results
 
 
-async def load_universe(filters: AutoFilters) -> Universe:
+async def load_universe(filters: AutoFilters, rest: RestConfig) -> Universe:
     async with aiohttp.ClientSession() as session:
         spot_payload, futures_payload = await asyncio.gather(
-            fetch_exchange_info(session, SPOT_EXCHANGE_INFO),
-            fetch_exchange_info(session, FUTURES_EXCHANGE_INFO),
+            fetch_exchange_info(
+                session,
+                rest.spot_endpoints,
+                rest.timeout_seconds,
+                rest.max_retries,
+            ),
+            fetch_exchange_info(
+                session,
+                rest.futures_endpoints,
+                rest.timeout_seconds,
+                rest.max_retries,
+            ),
         )
     spot_symbols = _filter_spot_symbols(spot_payload, filters.quote)
     futures_symbols = _filter_futures_symbols(futures_payload, filters.futures_contract_type)

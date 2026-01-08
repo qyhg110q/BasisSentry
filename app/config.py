@@ -34,6 +34,28 @@ class WsConfig:
 
 
 @dataclass
+class RestConfig:
+    spot_endpoints: list[str] = field(
+        default_factory=lambda: [
+            "https://api.binance.com/api/v3/exchangeInfo",
+            "https://api1.binance.com/api/v3/exchangeInfo",
+            "https://api2.binance.com/api/v3/exchangeInfo",
+            "https://api3.binance.com/api/v3/exchangeInfo",
+        ]
+    )
+    futures_endpoints: list[str] = field(
+        default_factory=lambda: [
+            "https://fapi.binance.com/fapi/v1/exchangeInfo",
+            "https://fapi1.binance.com/fapi/v1/exchangeInfo",
+            "https://fapi2.binance.com/fapi/v1/exchangeInfo",
+            "https://fapi3.binance.com/fapi/v1/exchangeInfo",
+        ]
+    )
+    timeout_seconds: int = 10
+    max_retries: int = 3
+
+
+@dataclass
 class BasisConfig:
     window_seconds: int = 300
     basis_abs_threshold: float = 0.02
@@ -76,6 +98,7 @@ class OutputConfig:
 @dataclass
 class AppConfig:
     symbols: SymbolsConfig = field(default_factory=SymbolsConfig)
+    rest: RestConfig = field(default_factory=RestConfig)
     ws: WsConfig = field(default_factory=WsConfig)
     basis: BasisConfig = field(default_factory=BasisConfig)
     wall: WallConfig = field(default_factory=WallConfig)
@@ -93,6 +116,7 @@ def load_config(path: str | Path) -> AppConfig:
     auto_filters_raw = symbols_raw.get("auto_filters", {})
     ws_raw = raw.get("ws", {})
     backoff_raw = ws_raw.get("reconnect_backoff", {})
+    rest_raw = raw.get("rest", {})
     basis_raw = raw.get("basis", {})
     wall_raw = raw.get("wall", {})
     trade_confirm_raw = wall_raw.get("trade_confirm", {})
@@ -108,6 +132,28 @@ def load_config(path: str | Path) -> AppConfig:
                 futures_contract_type=auto_filters_raw.get("futures_contract_type", "PERPETUAL"),
                 max_symbols=auto_filters_raw.get("max_symbols", 300),
             ),
+        ),
+        rest=RestConfig(
+            spot_endpoints=rest_raw.get(
+                "spot_endpoints",
+                [
+                    "https://api.binance.com/api/v3/exchangeInfo",
+                    "https://api1.binance.com/api/v3/exchangeInfo",
+                    "https://api2.binance.com/api/v3/exchangeInfo",
+                    "https://api3.binance.com/api/v3/exchangeInfo",
+                ],
+            ),
+            futures_endpoints=rest_raw.get(
+                "futures_endpoints",
+                [
+                    "https://fapi.binance.com/fapi/v1/exchangeInfo",
+                    "https://fapi1.binance.com/fapi/v1/exchangeInfo",
+                    "https://fapi2.binance.com/fapi/v1/exchangeInfo",
+                    "https://fapi3.binance.com/fapi/v1/exchangeInfo",
+                ],
+            ),
+            timeout_seconds=rest_raw.get("timeout_seconds", 10),
+            max_retries=rest_raw.get("max_retries", 3),
         ),
         ws=WsConfig(
             spot_base=ws_raw.get("spot_base", "wss://stream.binance.com:9443"),

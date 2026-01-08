@@ -12,6 +12,19 @@ ws:
   reconnect_backoff:
     min: 1
     max: 60
+rest:
+  spot_endpoints:
+    - "https://api.binance.com/api/v3/exchangeInfo"
+    - "https://api1.binance.com/api/v3/exchangeInfo"
+    - "https://api2.binance.com/api/v3/exchangeInfo"
+    - "https://api3.binance.com/api/v3/exchangeInfo"
+  futures_endpoints:
+    - "https://fapi.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi1.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi2.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi3.binance.com/fapi/v1/exchangeInfo"
+  timeout_seconds: 10
+  max_retries: 3
 basis:
   window_seconds: 300
   basis_abs_threshold: 0.02
