@@ -101,7 +101,7 @@ class AppRuntime:
                 "event_type": event.event_type,
                 "event_reason": event.reason,
             }
-            self.event_pack.record(wall.symbol, {\"ts\": depth.event_time, \"type\": \"wall_event\", **payload})
+            self.event_pack.record(wall.symbol, {"ts": depth.event_time, "type": "wall_event", **payload})
             self._record_event(payload)
             if event.event_type in {"WALL_REMOVE", "WALL_REMOVE_OR_EATEN"}:
                 self.alerts.notify(f"{event.event_type} {wall.symbol} {wall.wall_price}")
