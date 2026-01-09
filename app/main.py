@@ -161,6 +161,11 @@ class AppRuntime:
                 event_time=int(data.get("E") or data.get("eventTime") or 0),
             )
             self.spot_book[ticker.symbol] = ticker
+            if self.gateway:
+                state = self._get_state(ticker.symbol)
+                state.spot_mid = ticker.mid
+                state.last_update_ts = ticker.event_time or int(now_s() * 1000)
+                self.gateway.update_state(state)
             asyncio.create_task(self._handle_basis(ticker.symbol, now_s()))
             self.event_pack.record(ticker.symbol, {"ts": ticker.event_time, "type": "spot_book", **asdict(ticker)})
         elif "@depth" in stream:
@@ -195,6 +200,11 @@ class AppRuntime:
                 event_time=int(data.get("E") or data.get("eventTime") or 0),
             )
             self.perp_book[ticker.symbol] = ticker
+            if self.gateway:
+                state = self._get_state(ticker.symbol)
+                state.perp_mid = ticker.mid
+                state.last_update_ts = ticker.event_time or int(now_s() * 1000)
+                self.gateway.update_state(state)
             asyncio.create_task(self._handle_basis(ticker.symbol, now_s()))
             self.event_pack.record(ticker.symbol, {"ts": ticker.event_time, "type": "perp_book", **asdict(ticker)})
         elif stream.endswith("@markPrice@1s"):
@@ -205,6 +215,11 @@ class AppRuntime:
                 event_time=int(data.get("E") or data.get("eventTime") or 0),
             )
             self.perp_mark[mark.symbol] = mark
+            if self.gateway:
+                state = self._get_state(mark.symbol)
+                state.perp_mark = mark.mark_price
+                state.last_update_ts = mark.event_time or int(now_s() * 1000)
+                self.gateway.update_state(state)
             asyncio.create_task(self._handle_basis(mark.symbol, now_s()))
             self.event_pack.record(mark.symbol, {"ts": mark.event_time, "type": "mark", **asdict(mark)})
 
