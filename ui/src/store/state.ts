@@ -7,11 +7,13 @@ type UiState = {
   events: EventPayload[];
   lastMessageTs: number;
   muteUntil: number | null;
+  volume: number;
   setStatus: (status: UiState["status"]) => void;
   updateStates: (payload: SymbolState[]) => void;
   addEvent: (payload: EventPayload) => void;
   mute: (minutes: number) => void;
   clearMute: () => void;
+  setVolume: (volume: number) => void;
 };
 
 export const useUiStore = create<UiState>((set) => ({
@@ -20,6 +22,7 @@ export const useUiStore = create<UiState>((set) => ({
   events: [],
   lastMessageTs: 0,
   muteUntil: null,
+  volume: 0.5,
   setStatus: (status) => set({ status }),
   updateStates: (payload) =>
     set((state) => {
@@ -36,4 +39,5 @@ export const useUiStore = create<UiState>((set) => ({
     })),
   mute: (minutes) => set({ muteUntil: Date.now() + minutes * 60 * 1000 }),
   clearMute: () => set({ muteUntil: null }),
+  setVolume: (volume) => set({ volume }),
 }));
