@@ -16,6 +16,10 @@ ws:
     - "depth20@100ms"
     - "aggTrade"
   spot_bookticker_separate: false
+  futures_streams:
+    - "bookTicker"
+    - "markPrice@1s"
+  futures_bookticker_separate: false
   reconnect_backoff:
     min: 1
     max: 60

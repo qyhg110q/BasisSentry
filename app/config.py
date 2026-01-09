@@ -35,6 +35,8 @@ class WsConfig:
     client: Literal["websockets", "aiohttp"] = "websockets"
     spot_streams: list[str] = field(default_factory=lambda: ["bookTicker", "depth20@100ms", "aggTrade"])
     spot_bookticker_separate: bool = False
+    futures_streams: list[str] = field(default_factory=lambda: ["bookTicker", "markPrice@1s"])
+    futures_bookticker_separate: bool = False
 
 
 @dataclass
@@ -181,6 +183,8 @@ def load_config(path: str | Path) -> AppConfig:
             client=ws_raw.get("client", "websockets"),
             spot_streams=ws_raw.get("spot_streams", ["bookTicker", "depth20@100ms", "aggTrade"]),
             spot_bookticker_separate=ws_raw.get("spot_bookticker_separate", False),
+            futures_streams=ws_raw.get("futures_streams", ["bookTicker", "markPrice@1s"]),
+            futures_bookticker_separate=ws_raw.get("futures_bookticker_separate", False),
         ),
         basis=BasisConfig(
             window_seconds=basis_raw.get("window_seconds", 300),

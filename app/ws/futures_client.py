@@ -26,6 +26,7 @@ class FuturesWsClient:
         backoff_max: int,
         proxy_url: str | None = None,
         use_aiohttp: bool = False,
+        streams: list[str] | None = None,
     ) -> None:
         self.base_url = base_url
         self.symbols = symbols
@@ -34,13 +35,14 @@ class FuturesWsClient:
         self.backoff_max = backoff_max
         self.proxy_url = proxy_url
         self.use_aiohttp = use_aiohttp
+        self.streams = streams or ["bookTicker", "markPrice@1s"]
         self.logger = logging.getLogger("futures_ws")
 
     def _build_streams(self) -> list[str]:
         streams: list[str] = []
         for symbol in self.symbols:
-            streams.append(f"{symbol}@bookTicker")
-            streams.append(f"{symbol}@markPrice@1s")
+            for stream in self.streams:
+                streams.append(f"{symbol}@{stream}")
         return streams
 
     def _chunks(self, streams: list[str]) -> list[list[str]]:

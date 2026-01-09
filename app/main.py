@@ -287,18 +287,48 @@ async def run_app(config: AppConfig, dry_run: bool = False) -> None:
                 streams=config.ws.spot_streams,
             )
         )
-    futures_client = FuturesWsClient(
-        base_url=config.ws.futures_base,
-        symbols=symbols,
-        max_streams_per_conn=config.ws.max_streams_per_conn,
-        backoff_min=config.ws.reconnect_backoff.min,
-        backoff_max=config.ws.reconnect_backoff.max,
-        proxy_url=config.ws.proxy_url,
-        use_aiohttp=config.ws.client == "aiohttp",
-    )
+    futures_clients: list[FuturesWsClient] = []
+    if config.ws.futures_bookticker_separate:
+        futures_clients.append(
+            FuturesWsClient(
+                base_url=config.ws.futures_base,
+                symbols=symbols,
+                max_streams_per_conn=config.ws.max_streams_per_conn,
+                backoff_min=config.ws.reconnect_backoff.min,
+                backoff_max=config.ws.reconnect_backoff.max,
+                proxy_url=config.ws.proxy_url,
+                use_aiohttp=config.ws.client == "aiohttp",
+                streams=["bookTicker"],
+            )
+        )
+        futures_clients.append(
+            FuturesWsClient(
+                base_url=config.ws.futures_base,
+                symbols=symbols,
+                max_streams_per_conn=config.ws.max_streams_per_conn,
+                backoff_min=config.ws.reconnect_backoff.min,
+                backoff_max=config.ws.reconnect_backoff.max,
+                proxy_url=config.ws.proxy_url,
+                use_aiohttp=config.ws.client == "aiohttp",
+                streams=[stream for stream in config.ws.futures_streams if stream != "bookTicker"],
+            )
+        )
+    else:
+        futures_clients.append(
+            FuturesWsClient(
+                base_url=config.ws.futures_base,
+                symbols=symbols,
+                max_streams_per_conn=config.ws.max_streams_per_conn,
+                backoff_min=config.ws.reconnect_backoff.min,
+                backoff_max=config.ws.reconnect_backoff.max,
+                proxy_url=config.ws.proxy_url,
+                use_aiohttp=config.ws.client == "aiohttp",
+                streams=config.ws.futures_streams,
+            )
+        )
 
     tasks = [asyncio.create_task(client.run(runtime.handle_spot_message)) for client in spot_clients]
-    tasks.append(asyncio.create_task(futures_client.run(runtime.handle_futures_message)))
+    tasks.extend(asyncio.create_task(client.run(runtime.handle_futures_message)) for client in futures_clients)
     if gateway and config.ui.enabled:
         app = create_app(gateway)
         server = uvicorn.Server(
