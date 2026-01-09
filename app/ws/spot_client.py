@@ -26,6 +26,7 @@ class SpotWsClient:
         backoff_max: int,
         proxy_url: str | None = None,
         use_aiohttp: bool = False,
+        streams: list[str] | None = None,
     ) -> None:
         self.base_url = base_url
         self.symbols = symbols
@@ -34,14 +35,14 @@ class SpotWsClient:
         self.backoff_max = backoff_max
         self.proxy_url = proxy_url
         self.use_aiohttp = use_aiohttp
+        self.streams = streams or ["bookTicker", "depth20@100ms", "aggTrade"]
         self.logger = logging.getLogger("spot_ws")
 
     def _build_streams(self) -> list[str]:
         streams: list[str] = []
         for symbol in self.symbols:
-            streams.append(f"{symbol}@bookTicker")
-            streams.append(f"{symbol}@depth20@100ms")
-            streams.append(f"{symbol}@aggTrade")
+            for stream in self.streams:
+                streams.append(f"{symbol}@{stream}")
         return streams
 
     def _chunks(self, streams: list[str]) -> list[list[str]]:

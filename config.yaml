@@ -11,6 +11,11 @@ ws:
   max_streams_per_conn: 800
   proxy_url: null
   client: "websockets"
+  spot_streams:
+    - "bookTicker"
+    - "depth20@100ms"
+    - "aggTrade"
+  spot_bookticker_separate: false
   reconnect_backoff:
     min: 1
     max: 60
