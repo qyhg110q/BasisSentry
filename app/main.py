@@ -255,6 +255,7 @@ async def run_app(config: AppConfig, dry_run: bool = False) -> None:
         backoff_min=config.ws.reconnect_backoff.min,
         backoff_max=config.ws.reconnect_backoff.max,
         proxy_url=config.ws.proxy_url,
+        use_aiohttp=config.ws.client == "aiohttp",
     )
     futures_client = FuturesWsClient(
         base_url=config.ws.futures_base,
@@ -263,6 +264,7 @@ async def run_app(config: AppConfig, dry_run: bool = False) -> None:
         backoff_min=config.ws.reconnect_backoff.min,
         backoff_max=config.ws.reconnect_backoff.max,
         proxy_url=config.ws.proxy_url,
+        use_aiohttp=config.ws.client == "aiohttp",
     )
 
     tasks = [

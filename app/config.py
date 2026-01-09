@@ -32,6 +32,7 @@ class WsConfig:
     max_streams_per_conn: int = 800
     reconnect_backoff: ReconnectBackoff = field(default_factory=ReconnectBackoff)
     proxy_url: str | None = None
+    client: Literal["websockets", "aiohttp"] = "websockets"
 
 
 @dataclass
@@ -175,6 +176,7 @@ def load_config(path: str | Path) -> AppConfig:
                 max=backoff_raw.get("max", 60),
             ),
             proxy_url=ws_raw.get("proxy_url"),
+            client=ws_raw.get("client", "websockets"),
         ),
         basis=BasisConfig(
             window_seconds=basis_raw.get("window_seconds", 300),
