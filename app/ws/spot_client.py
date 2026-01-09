@@ -23,12 +23,14 @@ class SpotWsClient:
         max_streams_per_conn: int,
         backoff_min: int,
         backoff_max: int,
+        proxy_url: str | None = None,
     ) -> None:
         self.base_url = base_url
         self.symbols = symbols
         self.max_streams_per_conn = max_streams_per_conn
         self.backoff_min = backoff_min
         self.backoff_max = backoff_max
+        self.proxy_url = proxy_url
         self.logger = logging.getLogger("spot_ws")
 
     def _build_streams(self) -> list[str]:
@@ -49,7 +51,7 @@ class SpotWsClient:
         backoff = self.backoff_min
         while True:
             try:
-                async with websockets.connect(url, ping_interval=None) as ws:
+                async with websockets.connect(url, ping_interval=None, proxy=self.proxy_url) as ws:
                     self.logger.info("spot ws connected: %s", url)
                     rotate_task = asyncio.create_task(asyncio.sleep(rotate_after))
                     while True:
