@@ -32,6 +32,7 @@ class AppRuntime:
             window_seconds=config.basis.window_seconds,
             abs_threshold=config.basis.basis_abs_threshold,
             min_duration_s=config.basis.min_duration_s,
+            sigma_floor=config.basis.sigma_floor_bps / 10000,
         )
         self.wall_detector = WallDetector(config.wall)
         self.spot_book: dict[str, BookTicker] = {}

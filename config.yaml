@@ -30,6 +30,7 @@ basis:
   basis_abs_threshold: 0.02
   z_threshold: 5.0
   min_duration_s: 10
+  sigma_floor_bps: 1.0
 wall:
   enabled: true
   levels: 20

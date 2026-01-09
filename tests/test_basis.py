@@ -2,7 +2,7 @@ from app.engine.basis_engine import BasisEngine
 
 
 def test_basis_zscore_and_duration() -> None:
-    engine = BasisEngine(window_seconds=300, abs_threshold=0.02, min_duration_s=2)
+    engine = BasisEngine(window_seconds=300, abs_threshold=0.02, min_duration_s=2, sigma_floor=0.0001)
     snapshot = engine.update("btcusdt", 0.0, 100.0, 99.0, 99.0)
     assert round(snapshot.basis_mark, 4) == 0.01
     assert snapshot.zscore == 0.0

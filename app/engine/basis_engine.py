@@ -14,10 +14,17 @@ class BasisState:
 
 
 class BasisEngine:
-    def __init__(self, window_seconds: int, abs_threshold: float, min_duration_s: int) -> None:
+    def __init__(
+        self,
+        window_seconds: int,
+        abs_threshold: float,
+        min_duration_s: int,
+        sigma_floor: float,
+    ) -> None:
         self.window_seconds = window_seconds
         self.abs_threshold = abs_threshold
         self.min_duration_s = min_duration_s
+        self.sigma_floor = sigma_floor
         self.states: dict[str, BasisState] = {}
 
     def update(
@@ -34,6 +41,7 @@ class BasisEngine:
         state = self.states.setdefault(symbol, BasisState(stats=RollingStats(self.window_seconds)))
         state.stats.add(timestamp_s, basis_mark)
         mean, std = state.stats.mean_std()
+        std = max(std, self.sigma_floor)
         zscore = (basis_mark - mean) / std if std else 0.0
 
         if abs(basis_mark) >= self.abs_threshold:
