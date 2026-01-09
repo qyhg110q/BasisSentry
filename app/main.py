@@ -39,6 +39,7 @@ class AppRuntime:
         self.perp_book: dict[str, BookTicker] = {}
         self.perp_mark: dict[str, MarkPrice] = {}
         self.gateway = gateway
+        self.last_basis_ts_ms: dict[str, int] = {}
 
     def _get_state(self, symbol: str) -> SymbolState:
         if self.gateway and symbol in self.gateway.cache.states:
@@ -52,6 +53,11 @@ class AppRuntime:
             self.gateway.record_event(payload)
 
     async def _handle_basis(self, symbol: str, timestamp_s: float) -> None:
+        ts_ms = int(timestamp_s * 1000)
+        last_ts = self.last_basis_ts_ms.get(symbol, 0)
+        if ts_ms - last_ts < self.config.basis.calc_interval_ms:
+            return
+        self.last_basis_ts_ms[symbol] = ts_ms
         spot = self.spot_book.get(symbol)
         perp = self.perp_book.get(symbol)
         mark = self.perp_mark.get(symbol)
@@ -65,7 +71,7 @@ class AppRuntime:
             perp_mark=mark.mark_price,
         )
         event_payload = {
-            "ts": int(timestamp_s * 1000),
+            "ts": ts_ms,
             "symbol": symbol,
             "spot_mid": snapshot.spot_mid,
             "perp_mid": snapshot.perp_mid,

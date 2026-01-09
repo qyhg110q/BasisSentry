@@ -68,6 +68,7 @@ class BasisConfig:
     z_threshold: float = 5.0
     min_duration_s: int = 10
     sigma_floor_bps: float = 1.0
+    calc_interval_ms: int = 1000
 
 
 @dataclass
@@ -192,6 +193,7 @@ def load_config(path: str | Path) -> AppConfig:
             z_threshold=basis_raw.get("z_threshold", 5.0),
             min_duration_s=basis_raw.get("min_duration_s", 10),
             sigma_floor_bps=basis_raw.get("sigma_floor_bps", 1.0),
+            calc_interval_ms=basis_raw.get("calc_interval_ms", 1000),
         ),
         wall=WallConfig(
             enabled=wall_raw.get("enabled", True),
