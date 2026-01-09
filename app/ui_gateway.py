@@ -47,6 +47,7 @@ class UiCache:
     states: dict[str, SymbolState] = field(default_factory=dict)
     events: Deque[dict[str, Any]] = field(default_factory=lambda: deque(maxlen=6000))
     timeseries: dict[str, Deque[dict[str, Any]]] = field(default_factory=dict)
+    dirty_symbols: set[str] = field(default_factory=set)
 
 
 class UiGateway:
@@ -58,6 +59,7 @@ class UiGateway:
 
     def update_state(self, state: SymbolState) -> None:
         self.cache.states[state.symbol] = state
+        self.cache.dirty_symbols.add(state.symbol)
         series = self.cache.timeseries.setdefault(state.symbol, deque(maxlen=6 * 60 * 60))
         series.append(
             {
@@ -113,8 +115,11 @@ async def _ws_sender(ws: WebSocket, gateway: UiGateway) -> None:
 async def _ws_state_publisher(ws: WebSocket, gateway: UiGateway) -> None:
     while True:
         await asyncio.sleep(1)
-        snapshot = list(gateway.cache.states.values())
-        payload = [state.__dict__ for state in snapshot]
+        dirty = list(gateway.cache.dirty_symbols)
+        if not dirty:
+            continue
+        payload = [gateway.cache.states[symbol].__dict__ for symbol in dirty if symbol in gateway.cache.states]
+        gateway.cache.dirty_symbols.difference_update(dirty)
         await ws.send_json({"type": "state_update", "ts": int(time.time() * 1000), "data": payload})
 
 
