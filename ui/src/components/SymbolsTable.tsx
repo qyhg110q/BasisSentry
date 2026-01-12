@@ -24,7 +24,14 @@ export const SymbolsTable = ({ states }: { states: SymbolState[] }) => {
   const filtered = useMemo(() => {
     return states
       .filter((state) => state.symbol.includes(search.toLowerCase()))
-      .sort((a, b) => (b[orderBy] ?? 0) - (a[orderBy] ?? 0));
+      .sort((a, b) => {
+        const aValue = a[orderBy] ?? 0;
+        const bValue = b[orderBy] ?? 0;
+        if (orderBy === "basis_mark" || orderBy === "zscore") {
+          return Math.abs(bValue) - Math.abs(aValue);
+        }
+        return bValue - aValue;
+      });
   }, [states, search, orderBy]);
 
   return (
