@@ -1,0 +1,68 @@
+symbols:
+  mode: "auto"
+  manual_list: []
+  auto_filters:
+    quote: "USDT"
+    futures_contract_type: "PERPETUAL"
+    max_symbols: 300
+ws:
+  spot_base: "wss://stream.binance.com:9443"
+  futures_base: "wss://fstream.binance.com"
+  max_streams_per_conn: 800
+  proxy_url: null
+  client: "websockets"
+  spot_streams:
+    - "bookTicker"
+    - "depth20@100ms"
+    - "aggTrade"
+  spot_bookticker_separate: false
+  futures_streams:
+    - "bookTicker"
+    - "markPrice@1s"
+  futures_bookticker_separate: false
+  reconnect_backoff:
+    min: 1
+    max: 60
+rest:
+  spot_endpoints:
+    - "https://api.binance.com/api/v3/exchangeInfo"
+    - "https://api1.binance.com/api/v3/exchangeInfo"
+    - "https://api2.binance.com/api/v3/exchangeInfo"
+    - "https://api3.binance.com/api/v3/exchangeInfo"
+  futures_endpoints:
+    - "https://fapi.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi1.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi2.binance.com/fapi/v1/exchangeInfo"
+    - "https://fapi3.binance.com/fapi/v1/exchangeInfo"
+  timeout_seconds: 10
+  max_retries: 3
+basis:
+  window_seconds: 300
+  basis_abs_threshold: 0.02
+  z_threshold: 5.0
+  min_duration_s: 10
+  sigma_floor_bps: 1.0
+  calc_interval_ms: 1000
+wall:
+  enabled: true
+  levels: 20
+  speed: "100ms"
+  hard_min_wall_usdt: 200000
+  k_median: 8
+  share_threshold: 0.25
+  range_bps: 30
+  trade_confirm:
+    use_aggTrade: true
+    trade_window_s: 2
+    trade_price_bps: 5
+    trade_explain_ratio: 0.2
+event_pack:
+  pre_seconds: 120
+  post_seconds: 180
+output:
+  data_dir: "./data"
+  log_level: "INFO"
+ui:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8000
